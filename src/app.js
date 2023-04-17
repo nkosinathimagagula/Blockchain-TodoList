@@ -3,11 +3,11 @@ App = {
     contracts: {},
     load: async() => {
         // load app
-        console.log('app loading...');
         await App.loadWeb3();
         await App.loadAccount();
         await App.loadContract();
         await App.render();
+        web3.eth.defaultAccount = App.account
     },
 
     // https://medium.com/metamask/https-medium-com-metamask-breaking-change-injecting-web3-7722797916a8
@@ -31,7 +31,6 @@ App = {
                 // Acccounts now exposed
                 web3.eth.sendTransaction({/* ... */})
                 // window.ethereum.request({ method: 'eth_sendTransaction' });
-                console.log(o);
                 } catch (error) {
                 // User denied account access...
                 }
@@ -51,6 +50,7 @@ App = {
 
     loadAccount: async() => {
         App.account = web3.eth.accounts[0]
+        console.log(App.account)
     },
 
     loadContract: async() => {
@@ -83,6 +83,13 @@ App = {
         App.setLoading(false) 
     },
 
+    createTask: async () => {
+        App.setLoading(true)
+        const content = $('#newTask').val()
+        await App.todoList.createTask(content)
+        window.location.reload()
+    },
+
     setLoading: (boolean) => {
         App.loading = boolean
         const loader = $('#loader')
@@ -104,7 +111,7 @@ App = {
 
         // render out each task with a new task template
         for ( let i = 1; i <= taskCount; i++) {
-            // fetchthe task data from the blockchain
+            // fetch the task data from the blockchain
             const task = await App.todoList.tasks(i)
             const taskId = task[0].toNumber()
             const taskContent = task[1]
